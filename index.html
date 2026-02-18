@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Temperatura</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🌡️ Conversor de Temperatura</h1>
+            <p>Convierte entre Celsius, Fahrenheit y Kelvin</p>
+        </header>
+
+        <main class="converter">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="temperature">Valor de Temperatura</label>
+                    <input type="number" id="temperature" placeholder="Ingrese el valor" step="any">
+                </div>
+
+                <div class="unit-selector">
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="unit" value="celsius" checked>
+                            <span class="radio-custom"></span>
+                            Celsius (°C)
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="unit" value="fahrenheit">
+                            <span class="radio-custom"></span>
+                            Fahrenheit (°F)
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="unit" value="kelvin">
+                            <span class="radio-custom"></span>
+                            Kelvin (K)
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results">
+                <div class="result-card">
+                    <h3>Celsius (°C)</h3>
+                    <div class="value" id="celsius-result">--</div>
+                </div>
+                <div class="result-card">
+                    <h3>Fahrenheit (°F)</h3>
+                    <div class="value" id="fahrenheit-result">--</div>
+                </div>
+                <div class="result-card">
+                    <h3>Kelvin (K)</h3>
+                    <div class="value" id="kelvin-result">--</div>
+                </div>
+            </div>
+
+            <div class="formula-section">
+                <h3>Fórmulas de Conversión</h3>
+                <div class="formulas">
+                    <div class="formula">
+                        <strong>Celsius a Fahrenheit:</strong> °F = (°C × 9/5) + 32
+                    </div>
+                    <div class="formula">
+                        <strong>Fahrenheit a Celsius:</strong> °C = (°F - 32) × 5/9
+                    </div>
+                    <div class="formula">
+                        <strong>Celsius a Kelvin:</strong> K = °C + 273.15
+                    </div>
+                    <div class="formula">
+                        <strong>Kelvin a Celsius:</strong> °C = K - 273.15
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-conversions">
+                <h3>Conversiones Rápidas</h3>
+                <div class="quick-buttons">
+                    <button class="quick-btn" data-value="0" data-unit="celsius">0°C (Punto de congelación)</button>
+                    <button class="quick-btn" data-value="100" data-unit="celsius">100°C (Punto de ebullición)</button>
+                    <button class="quick-btn" data-value="37" data-unit="celsius">37°C (Temperatura corporal)</button>
+                    <button class="quick-btn" data-value="-40" data-unit="celsius">-40°C (Igual a -40°F)</button>
+                    <button class="quick-btn" data-value="273.15" data-unit="kelvin">273.15K (Cero absoluto relativo)</button>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Hecho con ❤️ para facilitar conversiones de temperatura</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
