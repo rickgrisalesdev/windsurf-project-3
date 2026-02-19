@@ -268,10 +268,7 @@ class ReconocedorEmociones:
         
         # Preprocesar imagen
         if len(imagen.shape) == 3:
-            if imagen.shape[-1] == 1:
-                imagen = np.squeeze(imagen, axis=-1)
-            else:
-                imagen = cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY)
+            imagen = cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY)
         
         imagen = cv2.resize(imagen, (48, 48))
         imagen = imagen.astype('float32') / 255.0
