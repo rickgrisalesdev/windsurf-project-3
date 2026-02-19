@@ -77,9 +77,24 @@ class ConversorTemperatura:
         X = datos[:, :2]  # [temperatura, tipo_conversión]
         y = datos[:, 2:3]  # temperatura_resultante
         
-        # Normalizar datos
-        X_scaled = self.scaler_input.fit_transform(X)
-        y_scaled = self.scaler_output.fit_transform(y)
+        # Normalizar datos de manera más apropiada
+        # Escalar temperaturas por separado del tipo de conversión
+        temp_scaler = MinMaxScaler()
+        output_scaler = MinMaxScaler()
+        
+        # Escalar solo la columna de temperatura
+        X_temps = X[:, 0:1].reshape(-1, 1)
+        X_temps_scaled = temp_scaler.fit_transform(X_temps)
+        
+        # Combinar con el tipo de conversión (sin escalar)
+        X_scaled = np.column_stack([X_temps_scaled.flatten(), X[:, 1]])
+        
+        # Escalar salida
+        y_scaled = output_scaler.fit_transform(y)
+        
+        # Guardar scalers para uso posterior
+        self.temp_scaler = temp_scaler
+        self.output_scaler = output_scaler
         
         print(f"Dataset creado: {len(datos)} muestras")
         print(f"Rango de temperaturas: {X[:, 0].min():.1f} deg a {X[:, 0].max():.1f} deg")
@@ -92,8 +107,7 @@ class ConversorTemperatura:
         
         Arquitectura:
         - Capa de entrada: 2 neuronas (temperatura, tipo_conversión)
-        - Capa oculta 1: 64 neuronas con activación ReLU
-        - Capa oculta 2: 32 neuronas con activación ReLU
+        - Capa oculta 1: 32 neuronas con activación ReLU
         - Capa de salida: 1 neurona (temperatura convertida)
         """
         print("Construyendo modelo de red neuronal...")
@@ -105,14 +119,9 @@ class ConversorTemperatura:
         
         self.model = tf.keras.Sequential([
             # Capa de entrada
-            tf.keras.layers.Dense(64, activation='relu', input_shape=(2,)),
-            tf.keras.layers.Dropout(0.2),
+            tf.keras.layers.Dense(32, activation='relu', input_shape=(2,)),
             
-            # Capa oculta 1
-            tf.keras.layers.Dense(32, activation='relu'),
-            tf.keras.layers.Dropout(0.2),
-            
-            # Capa oculta 2
+            # Capa oculta
             tf.keras.layers.Dense(16, activation='relu'),
             
             # Capa de salida
@@ -121,7 +130,7 @@ class ConversorTemperatura:
         
         # Compilar modelo
         self.model.compile(
-            optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+            optimizer=tf.keras.optimizers.Adam(learning_rate=0.01),
             loss='mse',  # Error cuadrático medio
             metrics=['mae']  # Error absoluto medio
         )
@@ -204,13 +213,14 @@ class ConversorTemperatura:
             print("ERROR: Modelo no entrenado. Primero ejecuta entrenar()")
             return None
         
-        # Preparar entrada
-        entrada = np.array([[temperatura, tipo_conversion]])
-        entrada_scaled = self.scaler_input.transform(entrada)
+        # Preparar entrada usando el nuevo scaler
+        entrada_temp = np.array([[temperatura]])
+        entrada_temp_scaled = self.temp_scaler.transform(entrada_temp)
+        entrada = np.column_stack([entrada_temp_scaled.flatten(), [tipo_conversion]])
         
         # Realizar predicción
-        prediccion_scaled = self.model.predict(entrada_scaled)
-        prediccion = self.scaler_output.inverse_transform(prediccion_scaled)
+        prediccion_scaled = self.model.predict(entrada)
+        prediccion = self.output_scaler.inverse_transform(prediccion_scaled)
         
         return prediccion[0][0]
     
@@ -233,8 +243,8 @@ class ConversorTemperatura:
         
         # Realizar predicciones
         y_pred_scaled = self.model.predict(X_test)
-        y_pred = self.scaler_output.inverse_transform(y_pred_scaled)
-        y_true = self.scaler_output.inverse_transform(y_test)
+        y_pred = self.output_scaler.inverse_transform(y_pred_scaled)
+        y_true = self.output_scaler.inverse_transform(y_test)
         
         # Calcular error promedio
         error_promedio = np.mean(np.abs(y_pred - y_true))
@@ -262,7 +272,7 @@ def demo_conversor_temperatura():
     conversor.construir_modelo()
     
     # Entrenar modelo
-    historial = conversor.entrenar(X, y, epocas=50)
+    historial = conversor.entrenar(X, y, epocas=200)
     
     # Visualizar entrenamiento
     conversor.visualizar_entrenamiento()
