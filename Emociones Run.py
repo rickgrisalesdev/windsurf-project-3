@@ -1,9 +1,20 @@
+"""
+SISTEMA DE RECONOCIMIENTO FACIAL DE ESTADOS DE ÁNIMO
+======================================================
+Este sistema utiliza redes neuronales convolucionales (CNN) para detectar
+emociones faciales en tiempo real.
+
+CONCEPTOS CLAVE:
+- Redes Neuronales Convolucionales (CNN)
+- Procesamiento de imágenes
+- Detección facial con OpenCV
+- Clasificación multiclase
+- Data augmentation
+"""
+
 import tensorflow as tf
 from tensorflow.keras import layers, models
-try:
-    import cv2
-except ModuleNotFoundError:
-    cv2 = None
+import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
@@ -12,22 +23,12 @@ import os
 import warnings
 warnings.filterwarnings('ignore')
 
-if cv2 is None:
-    print(
-        "ERROR: Falta OpenCV (cv2). Instalalo con: python -m pip install opencv-python\n"
-        "Nota: si estas en servidor/headless, usa: python -m pip install opencv-python-headless"
-    )
-
 class ReconocedorEmociones:
     def __init__(self):
         """Inicializa el sistema de reconocimiento de emociones"""
         self.model = None
         self.label_encoder = LabelEncoder()
         self.emociones = ['feliz', 'triste', 'enojado', 'sorprendido', 'neutral', 'miedo', 'asco']
-        if cv2 is None:
-            raise ModuleNotFoundError(
-                "OpenCV (cv2) no esta instalado. Instalalo con: python -m pip install opencv-python"
-            )
         self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
         self.historial_entrenamiento = None
         
@@ -36,7 +37,7 @@ class ReconocedorEmociones:
         Genera datos de entrenamiento sintéticos para demostración
         En un caso real, usaríamos un dataset como FER2013
         """
-        print("Generando datos de entrenamiento sintéticos...")
+        print("📊 Generando datos de entrenamiento sintéticos...")
         
         np.random.seed(42)
         datos = []
@@ -109,8 +110,8 @@ class ReconocedorEmociones:
         # Codificar etiquetas
         etiquetas_codificadas = self.label_encoder.fit_transform(etiquetas)
         
-        print(f"Dataset generado: {len(datos)} imágenes")
-        print(f"Distribución de emociones:")
+        print(f"✅ Dataset generado: {len(datos)} imágenes")
+        print(f"📈 Distribución de emociones:")
         for emocion in self.emociones:
             count = np.sum(etiquetas == emocion)
             print(f"   {emocion}: {count} imágenes")
@@ -126,7 +127,7 @@ class ReconocedorEmociones:
         - Global Average Pooling
         - Capas densas con regularización
         """
-        print("Construyendo modelo CNN para reconocimiento de emociones...")
+        print("🏗️ Construyendo modelo CNN para reconocimiento de emociones...")
         
         self.model = models.Sequential([
             # Bloque 1
@@ -173,11 +174,11 @@ class ReconocedorEmociones:
         
         # Mostrar resumen
         self.model.summary()
-        print("Modelo CNN construido exitosamente")
+        print("✅ Modelo CNN construido exitosamente")
     
     def entrenar(self, X_train, y_train, X_val, y_val, epocas=50, batch_size=32):
         """Entrena el modelo CNN"""
-        print("Iniciando entrenamiento del modelo CNN...")
+        print("🚀 Iniciando entrenamiento del modelo CNN...")
         
         # Callbacks
         early_stopping = tf.keras.callbacks.EarlyStopping(
@@ -212,13 +213,13 @@ class ReconocedorEmociones:
             verbose=1
         )
         
-        print("Entrenamiento completado")
+        print("✅ Entrenamiento completado")
         return self.historial_entrenamiento
     
     def visualizar_entrenamiento(self):
         """Visualiza el progreso del entrenamiento"""
         if self.historial_entrenamiento is None:
-            print("No hay historial de entrenamiento disponible")
+            print("❌ No hay historial de entrenamiento disponible")
             return
         
         plt.figure(figsize=(15, 5))
@@ -251,9 +252,7 @@ class ReconocedorEmociones:
             plt.yscale('log')
         
         plt.tight_layout()
-        plt.show(block=False)
-        plt.pause(3)
-        plt.close()
+        plt.show()
     
     def predecir_emocion(self, imagen):
         """
@@ -263,7 +262,7 @@ class ReconocedorEmociones:
             imagen: imagen en formato numpy array (48x48)
         """
         if self.model is None:
-            print("Modelo no entrenado")
+            print("❌ Modelo no entrenado")
             return None, None
         
         # Preprocesar imagen
@@ -288,14 +287,10 @@ class ReconocedorEmociones:
         """
         Detecta caras y predice emociones en una imagen
         """
-        if cv2 is None:
-            raise ModuleNotFoundError(
-                "OpenCV (cv2) no esta instalado. Instalalo con: python -m pip install opencv-python"
-            )
         # Cargar imagen
         imagen = cv2.imread(imagen_path)
         if imagen is None:
-            print(f"No se pudo cargar la imagen: {imagen_path}")
+            print(f"❌ No se pudo cargar la imagen: {imagen_path}")
             return None
         
         # Convertir a escala de grises
@@ -331,7 +326,7 @@ class ReconocedorEmociones:
     def evaluar_modelo(self, X_test, y_test):
         """Evalúa el rendimiento del modelo"""
         if self.model is None:
-            print("Modelo no entrenado")
+            print("❌ Modelo no entrenado")
             return
         
         # Realizar predicciones
@@ -342,7 +337,7 @@ class ReconocedorEmociones:
         accuracy = np.mean(y_pred == y_test)
         
         # Matriz de confusión simplificada
-        print(f"Evaluación del modelo:")
+        print(f"📊 Evaluación del modelo:")
         print(f"   Accuracy general: {accuracy:.4f} ({accuracy*100:.2f}%)")
         
         # Accuracy por clase
@@ -358,7 +353,7 @@ class ReconocedorEmociones:
 def demo_reconocimiento_emociones():
     """Función de demostración del sistema de reconocimiento de emociones"""
     print("=" * 60)
-    print("DEMOSTRACIÓN: RECONOCIMIENTO FACIAL DE EMOCIONES")
+    print("😊 DEMOSTRACIÓN: RECONOCIMIENTO FACIAL DE EMOCIONES")
     print("=" * 60)
     
     # Crear instancia
@@ -380,7 +375,7 @@ def demo_reconocimiento_emociones():
         X_train, y_train, test_size=0.2, random_state=42, stratify=y_train
     )
     
-    print(f"División de datos:")
+    print(f"📊 División de datos:")
     print(f"   Entrenamiento: {len(X_train)} muestras")
     print(f"   Validación: {len(X_val)} muestras")
     print(f"   Prueba: {len(X_test)} muestras")
@@ -418,7 +413,7 @@ def demo_reconocimiento_emociones():
         print(f"  Emoción real: {emocion_real}")
         print(f"  Emoción predicha: {emocion_predicha}")
         print(f"  Confianza: {confianza:.4f}")
-        print(f"  Correcto: {'(Y)' if emocion_predicha == emocion_real else '(N)'}")
+        print(f"  Correcto: {'(Y)' if emocion_predicha == emocion_real else '❌'}")
         print()
     
     print("Demostración completada")
